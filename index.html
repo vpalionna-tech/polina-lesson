@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>The Mystery of the Viral Group Chat (50 хв)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+  --bg:#F1EDFF; --surface:#FFFFFF; --ink:#1E1637; --muted:#5E5780; --line:#D5CCF5; --soft:#E9E3FF;
+  --violet:#6A3DF0; --onviolet:#FFFFFF; --lime:#C8FF3D; --pink:#E0227F; --ok:#1E8A55; --oksoft:#D6F5E3; --warn:#FFE9A8; --focus:#0A5CFF;
+  --bubble-a:#EDE8FF; --bubble-b:#FFE3F1; --bubble-c:#E0F5EA; --bubble-d:#FFF1D6;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){ --bg:#0D0A1F; --surface:#181331; --ink:#F2EEFF; --muted:#B9B1DE; --line:#352D66; --soft:#241E48; --violet:#A98BFF; --onviolet:#0D0A1F; --lime:#C8FF3D; --pink:#FF6FB1; --ok:#6FE0A0; --oksoft:#17402E; --warn:#4A3D12; --focus:#9CC1FF; --bubble-a:#2B2458; --bubble-b:#4A1E3C; --bubble-c:#183D30; --bubble-d:#4A3B16; }
+}
+:root[data-theme="dark"]{ --bg:#0D0A1F; --surface:#181331; --ink:#F2EEFF; --muted:#B9B1DE; --line:#352D66; --soft:#241E48; --violet:#A98BFF; --onviolet:#0D0A1F; --lime:#C8FF3D; --pink:#FF6FB1; --ok:#6FE0A0; --oksoft:#17402E; --warn:#4A3D12; --focus:#9CC1FF; --bubble-a:#2B2458; --bubble-b:#4A1E3C; --bubble-c:#183D30; --bubble-d:#4A3B16; }
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:'Manrope','Segoe UI',system-ui,-apple-system,Roboto,sans-serif;font-size:17px;line-height:1.55}
+button,textarea,input{font-family:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--focus);outline-offset:3px}
+
+.top{background:var(--surface);border-bottom:2px solid var(--line)}
+.top-in{max-width:960px;margin:0 auto;padding:12px 14px 10px}
+.r1{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.top h1{margin:0;font-size:clamp(19px,4.4vw,27px);font-weight:800;line-height:1.15}
+.top h1 em{font-style:normal;background:var(--lime);color:#1E1637;border-radius:8px;padding:0 8px}
+.timer{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.clock{font-size:26px;font-weight:800;font-variant-numeric:tabular-nums;min-width:90px;text-align:center;border:2px solid var(--line);border-radius:12px;padding:0 10px;background:var(--soft)}
+.tb{cursor:pointer;font-weight:700;font-size:14px;border:2px solid var(--line);border-radius:10px;padding:6px 12px;background:var(--surface);color:var(--ink)}
+.tb.main{background:var(--violet);color:var(--onviolet);border-color:var(--violet)}
+.stages{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:10px}
+.sg{cursor:pointer;text-align:left;border:2px solid var(--line);border-radius:14px;padding:7px 10px;background:var(--surface);font-weight:700;font-size:13.5px;line-height:1.2;display:flex;flex-direction:column;gap:1px}
+.sg small{font-weight:600;color:var(--muted);font-size:12px}
+.sg[aria-current="true"]{background:var(--violet);color:var(--onviolet);border-color:var(--violet)}
+.sg[aria-current="true"] small{color:var(--onviolet);opacity:.9}
+.sg.done{border-color:var(--ok);background:var(--oksoft)}
+.sg.done[aria-current="true"]{background:var(--violet);border-color:var(--violet)}
+.xpbar{height:8px;border-radius:999px;background:var(--soft);margin-top:10px;overflow:hidden}
+.xpbar>i{display:block;height:100%;background:var(--lime);transition:width .3s}
+.main{max-width:960px;margin:0 auto;padding:16px 14px 50px}
+
+.card{background:var(--surface);border:2px solid var(--line);border-radius:20px;padding:18px 16px}
+h2{font-size:24px;margin:0 0 4px;font-weight:800}
+h3{font-size:16px;margin:16px 0 6px;font-weight:800}
+.muted{color:var(--muted);font-size:15px}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.between{justify-content:space-between}
+.btn{cursor:pointer;font-weight:700;font-size:16px;border:2px solid var(--line);border-radius:12px;padding:9px 16px;background:var(--surface);color:var(--ink)}
+.btn.main{background:var(--violet);color:var(--onviolet);border-color:var(--violet)}
+.btn.lime{background:var(--lime);color:#1E1637;border-color:#1E1637}
+.btn.good{background:var(--oksoft);border-color:var(--ok)}
+.btn:active{transform:translateY(2px)}
+.btn[disabled]{opacity:.5;cursor:not-allowed}
+.tip{border-left:6px solid var(--violet);background:var(--soft);border-radius:8px;padding:8px 12px;margin:10px 0}
+.warn{border-left:6px solid #E8B000;background:var(--warn);border-radius:8px;padding:8px 12px;margin:10px 0}
+.okb{border-left:6px solid var(--ok);background:var(--oksoft);border-radius:8px;padding:8px 12px;margin:10px 0}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0}
+.chip{cursor:pointer;font-weight:700;font-size:15px;border:2px solid var(--violet);border-radius:999px;padding:3px 14px;background:var(--surface);color:var(--ink)}
+.chip.sel{background:var(--violet);color:var(--onviolet)}
+.chip.plain{border-color:var(--line);cursor:default}
+.tag{display:inline-block;font-weight:800;font-size:12px;border-radius:999px;padding:1px 10px;background:var(--lime);color:#1E1637;margin-right:6px}
+
+/* stage 1 */
+.take{font-size:clamp(21px,4.8vw,30px);font-weight:800;line-height:1.3;margin:10px 0}
+.dots{display:flex;gap:6px;margin:0 0 8px}
+.dot{width:14px;height:14px;border-radius:50%;border:2px solid var(--line);background:var(--surface)}
+.dot.on{background:var(--violet);border-color:var(--violet)}
+.dot.done{background:var(--ok);border-color:var(--ok)}
+.vote{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:12px 0}
+.vote .btn{font-size:18px;padding:14px 6px}
+
+/* stage 2 */
+.tabsb{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0 12px}
+.phone{border:3px solid var(--line);border-radius:24px;background:var(--bg);padding:10px;max-width:640px;margin:0 auto}
+.p-head{display:flex;align-items:center;gap:10px;padding:4px 6px 10px;border-bottom:2px solid var(--line);margin-bottom:10px;font-weight:800}
+.av{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--violet);color:var(--onviolet);font-weight:800;font-size:15px;flex:0 0 auto}
+.msg{display:flex;gap:8px;margin:8px 0;align-items:flex-end}
+.bub{max-width:85%;border-radius:16px;padding:8px 12px;font-size:16.5px}
+.bub .who{display:block;font-weight:800;font-size:12.5px;margin-bottom:1px}
+.bub .tm{color:var(--muted);font-size:11.5px;margin-left:6px;font-weight:600}
+.post{border:2px solid var(--line);border-radius:16px;background:var(--surface);overflow:hidden;margin:8px 0}
+.post .ph{font-size:56px;text-align:center;padding:14px;background:var(--soft)}
+.post .cap{padding:8px 12px;font-weight:600}
+.post .st{padding:0 12px 8px;color:var(--muted);font-size:14px}
+.cm{padding:6px 12px;border-top:1px solid var(--line);font-size:16px}
+.cm b{font-weight:800}
+.hl{cursor:pointer;font-weight:800;border:0;border-bottom:3px solid var(--pink);background:transparent;padding:0 1px;font-size:inherit;color:inherit}
+.hl:hover{background:var(--soft)}
+.tipbox{position:sticky;bottom:10px;border:3px solid var(--violet);border-radius:16px;background:var(--surface);padding:10px 14px;margin:10px 0;box-shadow:0 6px 18px rgba(0,0,0,.18)}
+.tipbox .w{font-size:22px;font-weight:800}
+.q{font-size:clamp(19px,4.2vw,23px);font-weight:700;line-height:1.35;margin:6px 0 10px}
+.opts{display:grid;gap:8px}
+.opt{cursor:pointer;text-align:left;font-weight:700;font-size:17px;border:2px solid var(--line);border-radius:12px;padding:10px 14px;background:var(--surface);color:var(--ink)}
+.opt.good{background:var(--oksoft);border-color:var(--ok)}
+.opt.soft{background:var(--warn);border-color:#E8B000}
+.opt[disabled]{cursor:default}
+
+/* stage 3 */
+.say{border:2px solid var(--line);border-radius:16px;padding:10px 12px;background:var(--bubble-a);margin:10px 0}
+.angles{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:10px 0}
+.ang{cursor:pointer;text-align:left;border:2px solid var(--line);border-radius:14px;padding:10px 12px;background:var(--surface);font-weight:700;line-height:1.3}
+.ang small{display:block;font-weight:500;color:var(--muted)}
+.ang[aria-pressed="true"]{background:var(--violet);color:var(--onviolet);border-color:var(--violet)}
+.ang[aria-pressed="true"] small{color:var(--onviolet)}
+.track{display:grid;grid-template-columns:repeat(2,1fr);gap:6px;margin:8px 0}
+.track label{display:flex;gap:8px;align-items:center;border:2px solid var(--line);border-radius:10px;padding:5px 10px;background:var(--surface);font-size:15px;cursor:pointer}
+.track input{width:18px;height:18px}
+.track label.on{background:var(--oksoft);border-color:var(--ok)}
+
+/* stage 4 */
+.ta{width:100%;min-height:190px;font-size:17px;line-height:1.55;border:3px solid var(--line);border-radius:14px;padding:10px 12px;background:var(--surface);color:var(--ink);resize:vertical}
+.meter{height:10px;border-radius:999px;background:var(--soft);overflow:hidden;margin:6px 0}
+.meter>i{display:block;height:100%;background:var(--violet);transition:width .2s}
+.meter.good>i{background:var(--ok)}
+.req{display:grid;gap:6px;margin:8px 0}
+.req div{border:2px solid var(--line);border-radius:10px;padding:6px 10px;background:var(--surface);font-size:15.5px}
+.req div.ok{background:var(--oksoft);border-color:var(--ok)}
+.fmts{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:10px 0}
+
+/* stage 5 */
+.kpi{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:10px 0}
+.kpi div{border:2px solid var(--line);border-radius:14px;padding:8px;text-align:center;background:var(--surface)}
+.kpi .big{font-size:30px;font-weight:800;line-height:1}
+.kpi small{display:block;color:var(--muted);font-size:12.5px;font-weight:600}
+.sum{white-space:pre-wrap;background:var(--bg);border:2px dashed var(--line);border-radius:14px;padding:12px;font-size:15.5px}
+
+.toast{position:fixed;left:50%;bottom:calc(16px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);border-radius:999px;padding:8px 18px;font-weight:700;font-size:15px;z-index:50;opacity:0;pointer-events:none;transition:opacity .2s;max-width:90vw;text-align:center}
+.toast.show{opacity:1}
+
+@media (max-width:760px){
+  body{font-size:16.5px}
+  .sg small{display:none}
+  .angles,.fmts{grid-template-columns:1fr}
+  .track{grid-template-columns:1fr}
+  .vote{grid-template-columns:1fr 1fr 1fr}
+  .vote .btn{font-size:15px}
+}
+@media (prefers-reduced-motion: reduce){ .btn:active{transform:none} .xpbar>i,.meter>i,.toast{transition:none} }
+</style>
+</head>
+<body>
+<header class="top"><div class="top-in">
+  <div class="r1">
+    <h1>🔦 The Mystery of the <em>Viral Group Chat</em></h1>
+    <div class="timer" aria-label="Таймер уроку">
+      <span class="clock" id="clock" role="timer">50:00</span>
+      <button class="tb main" id="tstart">▶ Старт</button>
+      <button class="tb" id="tnext">Наступний етап ⏭</button>
+    </div>
+  </div>
+  <nav class="stages" id="stages" aria-label="Етапи уроку"></nav>
+  <div class="xpbar" aria-hidden="true"><i id="xpi" style="width:0%"></i></div>
+</div></header>
+<main class="main" id="view"></main>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+var $=function(s){ return document.querySelector(s); };
+function esc(s){ return String(s).replace(/[&<>"]/g,function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+var canSpeak=('speechSynthesis' in window)&&('SpeechSynthesisUtterance' in window);
+function say(t){ if(!canSpeak){ toast('Озвучка недоступна у цьому браузері. Прочитай вголос сама 🙂'); return; } try{ window.speechSynthesis.cancel(); var u=new SpeechSynthesisUtterance(t); u.lang='en-US'; u.rate=0.9; window.speechSynthesis.speak(u);}catch(e){ toast('Озвучка не спрацювала. Прочитай вголос.'); } }
+var toastT=null; function toast(m){ var t=$('#toast'); t.textContent=m; t.classList.add('show'); clearTimeout(toastT); toastT=setTimeout(function(){ t.classList.remove('show'); },2400); }
+function copyText(txt,msg){ try{ navigator.clipboard.writeText(txt).then(function(){ toast(msg||'Скопійовано ✓'); },function(){ fb(txt,msg); }); }catch(e){ fb(txt,msg); } }
+function fb(txt,msg){ var ta=document.createElement('textarea'); ta.value=txt; ta.style.position='fixed'; ta.style.opacity='0'; document.body.appendChild(ta); ta.select(); try{ document.execCommand('copy'); toast(msg||'Скопійовано ✓'); }catch(e){ toast('Виділи текст і скопіюй вручну.'); } document.body.removeChild(ta); }
+function bindA(attr,fn){ var c=document.querySelectorAll('['+attr+']'); for(var i=0;i<c.length;i++) c[i].onclick=function(){ fn(this.getAttribute(attr)); }; }
+function wc(t){ var m=t.trim().match(/[A-Za-z0-9'’]+/g); return m?m.length:0; }
+
+/* ---------- state ---------- */
+var S={stage:0,done:[false,false,false,false,false],s1:{i:0,ans:{}},s2:{tab:0,qa:{},sp:{},tip:null},s3:{turn:0,c1:'',c2:'',c3:false,ph:{}},s4:{fmt:-1,text:{},sub:false,edit:false}};
+var KEY='viralchat.teen50.v1';
+try{ var sv=window.localStorage.getItem(KEY); if(sv){ var o=JSON.parse(sv); for(var k in o) if(k in S) S[k]=o[k]; } }catch(e){}
+function save(){ try{ window.localStorage.setItem(KEY,JSON.stringify(S)); }catch(e){} }
+
+/* ---------- timer ---------- */
+var secs=3000, running=false, tiv=null;
+function drawClock(){ var m=Math.floor(secs/60), s=secs%60; $('#clock').textContent=(m<10?'0':'')+m+':'+(s<10?'0':'')+s; $('#tstart').textContent=running?'⏸ Пауза':(secs<3000?'▶ Продовжити':'▶ Старт'); }
+function tick(){ if(!running) return; if(secs>0){ secs--; drawClock(); if(secs===0){ running=false; drawClock(); toast('Час уроку закінчився 🎉 Заверши підсумок.'); } } }
+tiv=setInterval(tick,1000);
+$('#tstart').onclick=function(){ running=!running; drawClock(); };
+$('#tnext').onclick=function(){ go(Math.min(S.stage+1,4)); };
+
+/* ---------- XP ---------- */
+function xp(){
+  var t=0, n1=Object.keys(S.s1.ans).filter(function(k){ return S.s1.ans[k]!=='skip'; }).length; t+=n1*10;
+  POSTS.forEach(function(p,i){ p.qs.forEach(function(q,j){ if(S.s2.qa[i+':'+j]===q.a) t+=15; }); if(S.s2.sp[i]) t+=20; });
+  t+=(S.s3.c1?30:0)+(S.s3.c2?30:0)+(S.s3.c3?30:0)+Object.keys(S.s3.ph).filter(function(k){return S.s3.ph[k];}).length*5;
+  var f=S.s4.fmt>=0?(S.s4.text[S.s4.fmt]||''):''; if(S.s4.sub) t+=100; if(S.s4.fmt>=0){ var r=reqs(f); t+=r.filter(function(x){return x[1];}).length*10; }
+  return t;
+}
+var MAXXP=60+90+60+90+50+130;
+function drawXp(){ $('#xpi').style.width=Math.min(100,Math.round(xp()/MAXXP*100))+'%'; }
+
+/* ---------- stages ---------- */
+var STG=[['1. Hot Take','8 хв · Speaking'],['2. Read the Feed','14 хв · Reading'],['3. Who Did It?','15 хв · Speaking'],['4. Writing Studio','10 хв · Writing'],['5. Recap & XP','3 хв · Wrap-up']];
+function drawStages(){ $('#stages').innerHTML=STG.map(function(s,i){ return '<button class="sg'+(S.done[i]?' done':'')+'" data-sg="'+i+'"'+(S.stage===i?' aria-current="true"':'')+'>'+(S.done[i]?'✓ ':'')+esc(s[0])+'<small>'+esc(s[1])+'</small></button>'; }).join(''); bindA('data-sg',function(v){ go(parseInt(v,10)); }); drawXp(); }
+function go(i){ S.stage=i; save(); try{ if(canSpeak) window.speechSynthesis.cancel(); }catch(e){} render(); window.scrollTo(0,0); }
+function done(i){ if(!S.done[i]){ S.done[i]=true; save(); toast('Етап '+(i+1)+' пройдено! +XP 🔥'); } }
+function render(){ drawStages(); [r1,r2,r3,r4,r5][S.stage](); }
+function nextRow(label){ return '<div class="row" style="margin-top:14px"><button class="btn main" id="nxt">'+label+'</button></div>'; }
+function bindNext(){ var n=$('#nxt'); if(n) n.onclick=function(){ go(Math.min(S.stage+1,4)); }; }
+function chipsH(list,attr){ return '<div class="chips">'+list.map(function(x,i){ return '<button class="chip" '+attr+'="'+i+'">'+esc(x)+'</button>'; }).join('')+'</div>'; }
+function bindChips(attr,list){ var c=document.querySelectorAll('['+attr+']'); for(var i=0;i<c.length;i++) c[i].onclick=function(){ var t=list[parseInt(this.getAttribute(attr),10)]; this.classList.toggle('sel'); copyText(t,'Скопійовано: «'+t+'»'); }; }
+
+/* ================= STAGE 1 ================= */
+var TAKES=[
+ {t:'Posting photos every day is more stressful than fun.',p:'Do you agree? Give ONE reason and ONE example from your life or your friends\u2019 lives.',x:['Posting every day feels like homework when...','The main reason is that people compare themselves.']},
+ {t:'Group chats with more than 10 people are always chaotic.',p:'Describe a group chat you know. What is good about it? What is annoying?',x:['In my class chat, there are...','The most annoying thing is...']},
+ {t:'Spoiler alerts should be a strict rule for 24 hours.',p:'Tell the tutor about a time someone spoiled a show or a film. What should the rule be?',x:['Once, my friend told me...','I think the rule should be... because...']},
+ {t:'Voice messages over 1 minute are a crime.',p:'Do you send voice messages? When are they better than text? When are they worse?',x:['Voice messages are great when...','I never listen to long ones because...']},
+ {t:'Trying a viral trend just for views isn\u2019t worth it.',p:'Would you try a viral trend? Which one? Why or why not?',x:['If the trend is safe, I would...','It\u2019s not worth it when...']},
+ {t:'A good playlist can fix any bad mood.',p:'What songs are in your \u201cfix my mood\u201d playlist? Tell the tutor about one song.',x:['When I feel bad, I listen to...','This song makes me feel...']}
+];
+var UP={hot:['I totally agree because...','The main reason is...','100%, for example...'],meh:['It depends on...','On the one hand..., on the other hand...','To be honest, it\u2019s not always true because...'],all:['To be honest...','Personally, I think...','In my opinion...','For example...']};
+function r1(){
+  var s=S.s1, c=TAKES[s.i], a=s.ans[s.i], n=Object.keys(s.ans).length;
+  var h='<div class="card"><h2>Hot Take or No? 🔥</h2><p class="muted">Прочитай твердження вголос. Обери реакцію, а потім скажи 2–3 речення репетиторові. Тут немає правильних відповідей, лише твоя думка.</p><div class="dots" aria-label="Прогрес">'+TAKES.map(function(x,i){ return '<span class="dot'+(s.ans[i]?' done':'')+(i===s.i?' on':'')+'"></span>'; }).join('')+'</div><div class="muted">Картка '+(s.i+1)+' з '+TAKES.length+'</div><div class="take">“'+esc(c.t)+'”</div><div class="row"><button class="btn" id="hear">🔊 Послухати</button></div>';
+  if(!a) h+='<div class="vote"><button class="btn lime" data-v="hot">Hot Take 🔥</button><button class="btn" data-v="meh">Meh 🤷</button><button class="btn" data-v="skip">Skip ⏭️</button></div><div class="muted">Hot Take = повністю згодна · Meh = залежить від ситуації · Skip = пропустити</div>';
+  else if(a==='skip') h+='<div class="warn">Пропущено. Можна повернутися пізніше.</div>';
+  else h+='<div class="okb"><span class="tag">'+(a==='hot'?'HOT TAKE':'MEH')+'</span> Твоя відповідь записана.</div><div class="tip"><b>🎤 Speaking prompt:</b> <span class="eng">'+esc(c.p)+'</span></div><div class="muted">B1-фрази (натисни, щоб скопіювати):</div>'+chipsH(UP[a].concat(c.x).concat(UP.all),'data-up');
+  h+='<div class="row" style="margin-top:14px"><button class="btn" id="prev"'+(s.i===0?' disabled':'')+'>← Назад</button><button class="btn main" id="next"'+(s.i===TAKES.length-1?' disabled':'')+'>Далі →</button></div>';
+  if(n===TAKES.length){ done(0); h+='<div class="okb" style="margin-top:12px"><b>Усі 6 карток пройдено! 🎉</b></div>'+nextRow('Далі: Read the Feed →'); }
+  $('#view').innerHTML=h+'</div>'; drawStages(); bindNext();
+  $('#hear').onclick=function(){ say(c.t); };
+  bindA('data-v',function(v){ s.ans[s.i]=v; save(); r1(); });
+  var pool=a&&a!=='skip'?UP[a].concat(c.x).concat(UP.all):[]; bindChips('data-up',pool);
+  $('#prev').onclick=function(){ s.i=Math.max(0,s.i-1); save(); r1(); };
+  $('#next').onclick=function(){ s.i=Math.min(TAKES.length-1,s.i+1); save(); r1(); };
+}
+
+/* ================= STAGE 2 ================= */
+var GL={
+ reminder:{en:'a message that helps you remember something',uk:'нагадування',s:'reminder'},
+ secret:{en:'something only a few people know',uk:'секрет, таємниця',s:'secret'},
+ nervous:{en:'a little scared or worried',uk:'нервовий, занепокоєний',s:'nervous'},
+ address:{en:'the exact place: street, number, city',uk:'адреса',s:'address'},
+ delete:{en:'to remove or erase something',uk:'видаляти',s:'delete'},
+ screenshot:{en:'a picture of what is on your phone screen',uk:'скріншот',s:'screenshot'},
+ views:{en:'how many people watched something',uk:'перегляди',s:'views'},
+ offline:{en:'not connected to the internet',uk:'не в мережі, офлайн',s:'offline'},
+ toolate:{en:'after the right time, when you cannot stop it',uk:'надто пізно',s:'too late'},
+ admit:{en:'to say that something bad is true',uk:'визнати (провину)',s:'admit'},
+ promise:{en:'to say seriously that you will (or will not) do something',uk:'обіцяти',s:'promise'},
+ guilty:{en:'feeling bad because you did something wrong',uk:'винний, з почуттям провини',s:'guilty'},
+ fix:{en:'to make a problem better',uk:'виправити',s:'fix'}
+};
+function mk(s){ return esc(s).replace(/\[\[(\w+)\|([^\]]+)\]\]/g,function(m,k,t){ return '<button class="hl" data-gl="'+k+'">'+t+'</button>'; }).replace(/\[\[(\w+)\|([^\]]+)\]\]/g,''); }
+function mkRaw(s){ return s.replace(/\[\[(\w+)\|([^\]]+)\]\]/g,'$2'); }
+function mkH(s){ return s.split(/(\[\[\w+\|[^\]]+\]\])/).map(function(p){ var m=p.match(/^\[\[(\w+)\|([^\]]+)\]\]$/); return m?'<button class="hl" data-gl="'+m[1]+'">'+esc(m[2])+'</button>':esc(p); }).join(''); }
+var POSTS=[
+ {tab:'💬 Group chat',type:'chat',title:'Neon Crew 🌙',sub:'14 members',
+  msgs:[['Maya','21:04','Guys, [[reminder|REMINDER]]: Midnight Rooftop is on Friday. It\u2019s a [[secret|secret]], so please don\u2019t post anything! 🤫','a'],['Leo','21:06','Relax, I never post secrets 😇 I only post my lunch lol','b'],['Zoe','21:09','I\u2019m kind of [[nervous|nervous]]. What if the school finds out? Maybe we should change the plan.','c'],['Maya','21:10','No way. I planned this for weeks! Everyone has the [[address|address]], right?','a'],['Leo','21:15','omg my phone is at 2% and my little brother has my charger 😭','b'],['Jade','21:20','I\u2019ll bring snacks and speakers. Don\u2019t be late!','d'],['Maya','21:22','Perfect. Please [[delete|delete]] this chat after Friday, okay? And NO screenshots!!','a']],
+  qs:[{q:'Why is Zoe worried?',o:['She thinks the school might find out.','She doesn\u2019t like snacks.','She forgot the address.'],a:0,w:'Zoe: “What if the school finds out?”'},{q:'What does Maya want everyone to do after Friday?',o:['Delete the chat.','Post photos.','Change the plan.'],a:0,w:'Maya: “Please delete this chat after Friday.”'}],
+  sp:'Tell your tutor in 2–3 sentences: Who sounds worried or strange in the chat, and why?'},
+ {tab:'📱 Leo\u2019s story',type:'feed',title:'@leo.vibes',sub:'Thursday 23:47',
+  ph:'🎧🛏️📱',cap:'Study night with my besties 📚 (not really 😂)',stat:'2,314 [[views|views]] · 480 likes',
+  cms:[['@maya.makes','LEO [[delete|DELETE]] THIS NOW!!! There\u2019s a [[screenshot|screenshot]] behind you 😱'],['@jade_snacks','wait is that the Neon Crew chat?? you can see the [[address|address]]!'],['@leo.vibes','I was [[offline|offline]] for 2 hours!!! My phone died, remember? I didn\u2019t post this story!'],['@unknown_user77','lol [[toolate|too late]], my cousin already saw it 👀']],
+  qs:[{q:'Why does Maya write “DELETE THIS NOW”?',o:['The photo shows the secret address.','She doesn\u2019t like Leo\u2019s headphones.','The story has too many likes.'],a:0,w:'She says: “There\u2019s a screenshot behind you.” Jade can see the address.'},{q:'What does Leo say about the story?',o:['He didn\u2019t post it because his phone was dead.','He posted it on purpose.','He wasn\u2019t at home.'],a:0,w:'Leo: “I was offline… My phone died… I didn\u2019t post this story!”'}],
+  sp:'Tell your tutor in 2–3 sentences: Does Leo sound honest? Why or why not?'},
+ {tab:'🎙️ Zoe\u2019s voice note',type:'dm',title:'Zoe 🌸 → Maya',sub:'Voice message transcript · 00:12',
+  text:'Hey Maya… I\u2019m so sorry to message you so late. I need to [[admit|admit]] something. I didn\u2019t post anything, I [[promise|promise]]! But last Sunday I took a [[screenshot|screenshot]] of our chat and sent it to my cousin Nina. She wanted to come to the rooftop, and I felt bad saying no. Now I feel really [[guilty|guilty]]. I think Nina might have shown it to her friends, but I\u2019m not sure. Please don\u2019t be angry at Leo. I\u2019ll talk to Nina tomorrow morning, okay? I just want to [[fix|fix]] this before school.',
+  qs:[{q:'What did Zoe do last Sunday?',o:['She sent a screenshot to her cousin.','She posted the chat online.','She deleted the chat.'],a:0,w:'Zoe: “I took a screenshot of our chat and sent it to my cousin Nina.”'},{q:'Who might have shown the screenshot to other people?',o:['Nina','Leo','Maya'],a:0,w:'Zoe: “I think Nina might have shown it to her friends.”'}],
+  sp:'Tell your tutor in 2–3 sentences: Is Zoe the real culprit, or is the story more complicated? Why?'}
+];
+function r2(){
+  var s=S.s2, p=POSTS[s.tab], h='<div class="card"><h2>Read the Feed & Spot the Clues 🔎</h2><p class="muted">Читай повідомлення. Натискай на підкреслені слова: побачиш значення, переклад і озвучку. Потім дай відповіді на 2 запитання та скажи свою версію.</p><div class="tabsb">'+POSTS.map(function(x,i){ return '<button class="chip'+(s.tab===i?' sel':'')+'" data-pt="'+i+'">'+x.tab+'</button>'; }).join('')+'</div><div class="phone"><div class="p-head"><span class="av">'+esc(p.title.replace(/[^A-Za-z@]/g,'').charAt(0).toUpperCase()||'N')+'</span><div>'+esc(p.title)+'<div class="muted" style="font-weight:500;font-size:13px">'+esc(p.sub)+'</div></div></div>';
+  if(p.type==='chat'){ h+=p.msgs.map(function(m){ var cl={a:'--bubble-a',b:'--bubble-b',c:'--bubble-c',d:'--bubble-d'}[m[3]]; return '<div class="msg"><span class="av">'+m[0].charAt(0)+'</span><div class="bub" style="background:var('+cl+')"><span class="who">'+m[0]+'<span class="tm">'+m[1]+'</span></span>'+mkH(m[2])+'</div></div>'; }).join(''); }
+  else if(p.type==='feed'){ h+='<div class="post"><div class="ph" aria-hidden="true">'+p.ph+'</div><div class="cap">'+esc(p.cap)+'</div><div class="st">'+mkH(p.stat)+'</div>'+p.cms.map(function(c){ return '<div class="cm"><b>'+esc(c[0])+'</b> '+mkH(c[1])+'</div>'; }).join('')+'</div>'; }
+  else h+='<div class="bub" style="background:var(--bubble-b);max-width:100%"><span class="who">Zoe<span class="tm">00:12</span></span>'+mkH(p.text)+'</div>';
+  h+='</div>';
+  if(s.tip&&GL[s.tip]){ var g=GL[s.tip]; h+='<div class="tipbox"><div class="row between"><span class="w">'+esc(g.s)+'</span><button class="btn" id="tsay">🔊</button></div><div><b>Simple English:</b> '+esc(g.en)+'</div><div><b>Українською:</b> '+esc(g.uk)+'</div></div>'; }
+  h+='<h3>Quick questions</h3>'+p.qs.map(function(q,j){ var k=s.tab+':'+j, ans=s.qa[k], has=ans!==undefined; return '<div class="q">'+(j+1)+'. '+esc(q.q)+'</div><div class="opts">'+q.o.map(function(o,m){ var cl='opt'; if(has){ if(m===q.a) cl+=' good'; else if(m===ans) cl+=' soft'; } return '<button class="'+cl+'" data-qa="'+k+'|'+m+'"'+(has?' disabled':'')+'>'+(has&&m===q.a?'✓ ':'')+esc(o)+'</button>'; }).join('')+'</div>'+(has?'<div class="'+(ans===q.a?'okb':'warn')+'">'+(ans===q.a?'<b>Точно!</b> ':'<b>Майже.</b> Поглянь ще раз: ')+esc(q.w)+'</div>':''); }).join('');
+  var spd=s.sp[s.tab];
+  h+='<h3>🎤 Speaking check-in</h3><div class="tip">'+esc(p.sp)+'</div><div class="muted">Фрази для старту:</div>'+chipsH(['I think ... looks suspicious because...','The clue is that...','On the one hand..., but on the other hand...','Maybe ... is telling the truth because...','I\u2019m not sure, but...'],'data-sc')+'<div class="row" style="margin-top:10px"><button class="btn'+(spd?' good':' lime')+'" id="spd">'+(spd?'✓ Я сказала':'Я сказала репетиторові')+'</button></div>';
+  var all=POSTS.every(function(_,i){ return s.sp[i]; })&&POSTS.every(function(q,i){ return q.qs.every(function(_,j){ return s.qa[i+':'+j]!==undefined; }); });
+  if(all){ done(1); h+='<div class="okb" style="margin-top:12px"><b>Усі три тексти прочитано! 🔥</b></div>'+nextRow('Далі: Who Did It? →'); }
+  $('#view').innerHTML=h+'</div>'; drawStages(); bindNext();
+  bindA('data-pt',function(v){ s.tab=parseInt(v,10); s.tip=null; save(); r2(); });
+  bindA('data-gl',function(v){ s.tip=v; save(); r2(); say(GL[v].s); });
+  if($('#tsay')) $('#tsay').onclick=function(){ say(GL[s.tip].s+'. '+GL[s.tip].en); };
+  var qb=document.querySelectorAll('[data-qa]'); for(var i=0;i<qb.length;i++) qb[i].onclick=function(){ var v=this.getAttribute('data-qa').split('|'); s.qa[v[0]]=parseInt(v[1],10); save(); r2(); };
+  bindChips('data-sc',['I think ... looks suspicious because...','The clue is that...','On the one hand..., but on the other hand...','Maybe ... is telling the truth because...','I\u2019m not sure, but...']);
+  $('#spd').onclick=function(){ s.sp[s.tab]=true; save(); r2(); };
+}
+
+/* ================= STAGE 3 ================= */
+var T1={tutor:'Okay, so Leo\u2019s story is everywhere now, and Maya says the plan is ruined. Honestly, I think Leo is the main problem. It was his account! Do you agree?',opts:[
+ {id:'A',l:'Defend Leo',d:'Say he might be innocent.',st:['I don\u2019t think it\u2019s fair to blame Leo because...','He said he was offline, so...','We need proof before we say...'],v:['fair','proof','innocent','evidence']},
+ {id:'B',l:'Blame the leaked screenshot',d:'The real problem is the screenshot.',st:['The real problem is the screenshot because...','Anyone could share it...','It started when...'],v:['leak','share','spread','chain']},
+ {id:'C',l:'Suggest a new plan',d:'Change the plan so it is safe.',st:['Instead, we could...','Why don\u2019t we...?','A safer plan is...'],v:['safe','backup plan','change','location']}]};
+var T2={
+ A:{tutor:'Hmm, but it\u2019s his story, and his face is in the photo. And Zoe sounded really nervous in the chat. What\u2019s your theory?',opts:[{id:'A1',l:'Zoe sent the screenshot',d:'She admitted it.',st:['Zoe admitted that she...','Maybe her cousin Nina...'],v:['admit','cousin','share']},{id:'A2',l:'Someone used Leo\u2019s phone',d:'Maybe it was not Leo.',st:['Maybe someone else...','His phone died, so...'],v:['theory','possible','by accident']},{id:'A3',l:'It was an accident',d:'Nobody planned it.',st:['It could be an accident because...','Leo didn\u2019t see the screen behind him...'],v:['accident','mistake','by mistake']}]},
+ B:{tutor:'OK, but who sent the screenshot first? Maya told everyone to delete the chat, but did they? What would you ask Zoe?',opts:[{id:'B1',l:'Ask Zoe questions',d:'Find out the truth.',st:['I would ask Zoe...','Who did you send it to?','When did you...?'],v:['ask','truth','question']},{id:'B2',l:'Defend Maya',d:'She tried to be careful.',st:['Maya told everyone to...','It\u2019s not her fault because...'],v:['careful','fault','responsible']},{id:'B3',l:'Check the feed',d:'Look for more clues.',st:['First, we should check...','The story was posted at...'],v:['clue','check','timeline']}]},
+ C:{tutor:'A new plan sounds smart, but Maya spent weeks on this. She\u2019s really upset. How can we talk to her without making it worse?',opts:[{id:'C1',l:'Apologize together',d:'Be kind and honest.',st:['We should say sorry because...','Let\u2019s tell her that...'],v:['apologize','honest','kind']},{id:'C2',l:'Give her space',d:'Wait before talking.',st:['Maybe we should wait because...','She needs time to...'],v:['space','calm down','later']},{id:'C3',l:'Offer to help',d:'Help organize a new event.',st:['We could help her...','What if we plan a hangout instead?'],v:['organize','help','instead']}]}
+};
+var T3={A1:'So Zoe made a mistake but did not post it. That changes the story. What should the group do now?',A2:'Interesting! But who could use his phone? His little brother? Let\u2019s say you are right. What is the next step?',A3:'An accident is possible. But the school can still see the post. What should Leo do right now?',B1:'Good questions! Zoe already told us a lot. If she is honest, how should Maya react?',B2:'Fair point, Maya was careful. But the secret is out anyway. What is the best next step?',B3:'Smart. A timeline helps. Now, what is your final decision about the rooftop party?',C1:'An honest apology is a strong start. And what about the rooftop party? Cancel or move?',C2:'Giving space is kind. But time is short. What can we say to Maya tomorrow morning?',C3:'I love that idea! Let\u2019s make it real. What is your plan for the new hangout?'};
+var FIN=['Give your final answer in 2–3 sentences: What should the group do now, and why?'];
+var PH=['To be honest...','It depends on...','The main reason is...','In my opinion...','I see your point, but...','For example...','Instead, we could...','That\u2019s not fair because...','I\u2019m not sure, but...','Maybe we should...'];
+function r3(){
+  var s=S.s3, h='<div class="card"><h2>Who Did It? / What Happens Next? 🕵️</h2><p class="muted">Репетитор грає друга-детектива. Прочитай його репліку (🔊), обери свій кут зору та відповідай вголос. Тричі, як у справжній розмові.</p>';
+  var turn=s.c1?(s.c2?3:2):1;
+  function say1(tutor,key){ return '<div class="say"><b>Tutor:</b> <span class="eng">'+esc(tutor)+'</span> <button class="btn" data-ts="'+key+'" style="padding:2px 10px">🔊</button></div>'; }
+  function angles(opts,sel,attr){ return '<div class="angles">'+opts.map(function(o){ return '<button class="ang" data-'+attr+'="'+o.id+'" aria-pressed="'+(sel===o.id)+'">'+esc(o.l)+'<small>'+esc(o.d)+'</small></button>'; }).join('')+'</div>'; }
+  function support(o){ return '<div class="tip"><b>Sentence starters</b> (натисни, щоб скопіювати)</div>'+chipsH(o.st,'data-ss')+'<div class="muted">Корисна лексика:</div><div class="chips">'+o.v.map(function(w){ return '<span class="chip plain">'+esc(w)+'</span>'; }).join('')+'</div>'; }
+  h+='<h3>Turn 1</h3>'+say1(T1.tutor,'t1')+angles(T1.opts,s.c1,'a1'); var o1=T1.opts.filter(function(o){return o.id===s.c1;})[0]; if(o1) h+=support(o1);
+  var o2=null;
+  if(s.c1){ var t2=T2[s.c1]; h+='<h3>Turn 2</h3>'+say1(t2.tutor,'t2')+angles(t2.opts,s.c2,'a2'); o2=t2.opts.filter(function(o){return o.id===s.c2;})[0]; if(o2) h+=support(o2); }
+  if(s.c2){ h+='<h3>Turn 3 (final)</h3>'+say1(T3[s.c2],'t3')+'<div class="tip"><b>🎤 Final answer:</b> '+FIN[0]+'</div>'+chipsH(['In the end, I think we should...','The best solution is...','I would start by...','Because...'],'data-sf')+'<div class="row"><button class="btn'+(s.c3?' good':' lime')+'" id="fin3">'+(s.c3?'✓ Я сказала фінальну відповідь':'Я сказала фінальну відповідь')+'</button></div>'; }
+  h+='<h3>Key Phrases Used</h3><p class="muted">Репетитор або ти відмічає фрази, які справді прозвучали вголос.</p><div class="track">'+PH.map(function(p,i){ return '<label class="'+(s.ph[i]?'on':'')+'"><input type="checkbox" data-ph="'+i+'"'+(s.ph[i]?' checked':'')+'> '+esc(p)+'</label>'; }).join('')+'</div>';
+  if(s.c3){ done(2); h+='<div class="okb"><b>Дебати завершено! 🎉</b></div>'+nextRow('Далі: Writing Studio →'); }
+  $('#view').innerHTML=h+'</div>'; drawStages(); bindNext();
+  bindA('data-ts',function(k){ say(k==='t1'?T1.tutor:k==='t2'?T2[s.c1].tutor:T3[s.c2]); });
+  bindA('data-a1',function(v){ s.c1=v; s.c2=''; s.c3=false; save(); r3(); });
+  bindA('data-a2',function(v){ s.c2=v; s.c3=false; save(); r3(); });
+  bindChips('data-ss',o2?o2.st:(o1?o1.st:[])); bindChips('data-sf',['In the end, I think we should...','The best solution is...','I would start by...','Because...']);
+  var ck=document.querySelectorAll('[data-ph]'); for(var i=0;i<ck.length;i++) ck[i].onchange=function(){ s.ph[this.getAttribute('data-ph')]=this.checked; save(); drawXp(); this.parentNode.classList.toggle('on',this.checked); };
+  if($('#fin3')) $('#fin3').onclick=function(){ s.c3=true; save(); r3(); };
+}
+
+/* ================= STAGE 4 ================= */
+var FMT=[
+ {t:'📸 Instagram / TikTok caption',h:'Explain what really happened and finish with a hook question for followers.',st:['Plot twist: ...','Let me explain what really happened...','So what do you think? Comment below! 👇'],min:60,max:90},
+ {t:'💬 Group chat message',h:'Set the record straight and invite everyone to a real hangout.',st:['Hey guys, let\u2019s clear this up...','Here\u2019s what really happened...','So, are you in for Saturday? 🙌'],min:60,max:90},
+ {t:'📔 Diary / notes entry',h:'What you learned today. Add a plot twist.',st:['Dear diary, today was crazy...','The plot twist is that...','Next time, I will...'],min:60,max:90}
+];
+var CLUEW=/(screenshot|story|chat|address|offline|phone|views|secret|cousin|rooftop|Leo|Maya|Zoe|Nina)/i;
+var PASTW=/\b(\w+ed|was|were|did|went|took|sent|saw|said|told|posted|found|made|felt|knew)\b/i;
+var PLANW=/\b(I think|I believe|in my opinion|we should|we could|will|going to|let\u2019s|let's|next time|plan)\b/i;
+var CTAW=/(\?|let\u2019s|let's|join|come|comment|tell me|vote|follow|share your)/i;
+function reqs(t){ return [['Mention at least 1 clue from the story (screenshot, chat, address...)',CLUEW.test(t)],['Use 1 past event AND 1 plan or opinion',PASTW.test(t)&&PLANW.test(t)],['Include a question or a call-to-action',CTAW.test(t)]]; }
+var SELFQ=['Did you check your past tense verbs (was, went, sent, took...)?','Can you replace “good / bad” with a stronger adjective (awful, amazing, shocking...)?','Does every sentence start with a capital letter and end with . ? or ! ?','Did you use at least one linking word (but, because, so, then)?','Does your first line make people want to keep reading?','Read it aloud once. Is there a sentence that is too long?'];
+function r4(){
+  var s=S.s4, h='<div class="card"><h2>Creative Writing Studio ✍️</h2><p class="muted">Обери формат і напиши 60–90 слів англійською. Підказки внизу допоможуть, але фінальна версія твоя.</p><div class="fmts">'+FMT.map(function(f,i){ return '<button class="ang" data-f="'+i+'" aria-pressed="'+(s.fmt===i)+'">'+f.t+'<small>'+f.h+'</small></button>'; }).join('')+'</div>';
+  if(s.fmt>=0){
+    var f=FMT[s.fmt], text=s.text[s.fmt]||'', n=wc(text), r=reqs(text), good=n>=f.min&&n<=f.max;
+    h+='<div class="muted">Стартові рядки (натисни, щоб додати у текст):</div><div class="chips">'+f.st.map(function(x,i){ return '<button class="chip" data-st="'+i+'">'+esc(x)+'</button>'; }).join('')+'</div><textarea class="ta" id="ta" aria-label="Твій текст" placeholder="Write here...">'+esc(text)+'</textarea><div class="row between"><span class="muted" id="wcnt"><b>'+n+'</b> слів · ціль '+f.min+'–'+f.max+'</span><span class="muted" id="wst">'+(n<f.min?'Ще '+(f.min-n)+' слів':n>f.max?'Трохи забагато, скороти':'Чудова довжина ✓')+'</span></div><div class="meter'+(good?' good':'')+'" id="mt"><i id="mti" style="width:'+Math.min(100,Math.round(n/f.min*100))+'%"></i></div>'+
+     '<h3>3 required elements</h3><div class="req" id="req">'+r.map(function(x){ return '<div class="'+(x[1]?'ok':'')+'">'+(x[1]?'✅ ':'⬜ ')+esc(x[0])+'</div>'; }).join('')+'</div>'+
+     '<div class="row"><button class="btn" id="chk">🔍 Check My Draft (Self-Edit Prompts)</button><button class="btn lime" id="sub"'+(n<f.min?' disabled':'')+'>'+(s.sub?'✓ Готово (оновити)':'Готово: +XP')+'</button></div>';
+    if(s.edit) h+='<div class="tip" style="margin-top:12px"><b>Self-Edit разом з репетитором:</b><ul style="margin:4px 0 0;padding-left:20px">'+SELFQ.map(function(q){ return '<li>'+esc(q)+'</li>'; }).join('')+'</ul></div>';
+  }
+  if(s.sub){ done(3); h+='<div class="okb" style="margin-top:12px"><b>Текст написано! 🔥</b></div>'+nextRow('Далі: Recap & XP →'); }
+  $('#view').innerHTML=h+'</div>'; drawStages(); bindNext();
+  bindA('data-f',function(v){ s.fmt=parseInt(v,10); s.edit=false; save(); r4(); });
+  if(s.fmt>=0){
+    var ta=$('#ta'), f2=FMT[s.fmt];
+    ta.oninput=function(){ s.text[s.fmt]=ta.value; save(); var c=wc(ta.value), rq=reqs(ta.value), g=c>=f2.min&&c<=f2.max; $('#wcnt').innerHTML='<b>'+c+'</b> слів · ціль '+f2.min+'–'+f2.max; $('#wst').textContent=c<f2.min?'Ще '+(f2.min-c)+' слів':c>f2.max?'Трохи забагато, скороти':'Чудова довжина ✓'; $('#mti').style.width=Math.min(100,Math.round(c/f2.min*100))+'%'; $('#mt').className='meter'+(g?' good':''); $('#req').innerHTML=rq.map(function(x){ return '<div class="'+(x[1]?'ok':'')+'">'+(x[1]?'✅ ':'⬜ ')+esc(x[0])+'</div>'; }).join(''); $('#sub').disabled=c<f2.min; drawXp(); };
+    bindA('data-st',function(i){ var add=f2.st[parseInt(i,10)]; ta.value=(ta.value?ta.value+(/\s$/.test(ta.value)?'':' '):'')+add+' '; ta.focus(); ta.oninput(); });
+    $('#chk').onclick=function(){ s.edit=!s.edit; save(); r4(); };
+    $('#sub').onclick=function(){ s.sub=true; save(); r4(); };
+  }
+}
+
+/* ================= STAGE 5 ================= */
+function summary(){
+  var f=S.s4.fmt>=0?FMT[S.s4.fmt]:null, text=f?(S.s4.text[S.s4.fmt]||''):'';
+  var ph=PH.filter(function(_,i){ return S.s3.ph[i]; });
+  var hot=Object.keys(S.s1.ans).filter(function(k){return S.s1.ans[k]==='hot';}).length, meh=Object.keys(S.s1.ans).filter(function(k){return S.s1.ans[k]==='meh';}).length;
+  return 'The Mystery of the Viral Group Chat — підсумок уроку (50 хв)\n\n'+
+   'XP: '+xp()+' / '+MAXXP+'\n'+
+   'Етапи: '+STG.map(function(s,i){ return (S.done[i]?'✔ ':'○ ')+s[0]; }).join(' | ')+'\n'+
+   'Hot Take: '+hot+' · Meh: '+meh+'\n'+
+   'Читання: правильних відповідей '+POSTS.reduce(function(a,p,i){ return a+p.qs.filter(function(q,j){ return S.s2.qa[i+':'+j]===q.a; }).length; },0)+' з 6\n'+
+   'Дебати: '+(S.s3.c1?(T1.opts.filter(function(o){return o.id===S.s3.c1;})[0].l):'—')+(S.s3.c2?' → '+S.s3.c2:'')+'\n'+
+   'Фрази, які прозвучали: '+(ph.length?ph.join(' · '):'—')+'\n\n'+
+   'Писання'+(f?' ('+f.t+', '+wc(text)+' слів)':'')+':\n'+(text||'—');
+}
+function r5(){
+  var f=S.s4.fmt>=0?FMT[S.s4.fmt]:null, text=f?(S.s4.text[S.s4.fmt]||''):'', total=xp(), pct=Math.round(total/MAXXP*100), ph=PH.filter(function(_,i){ return S.s3.ph[i]; });
+  var lvl=pct>=80?'Detective Legend 🏆':pct>=50?'Chat Investigator 🔍':'Rookie Detective 🌱';
+  var okAll=S.done.slice(0,4).every(Boolean); if(okAll) done(4);
+  var h='<div class="card"><h2>Recap & XP 🎉</h2><div class="kpi"><div><span class="big">'+total+'</span><small>XP</small></div><div><span class="big">'+S.done.filter(Boolean).length+'/5</span><small>етапів</small></div><div><span class="big">'+ph.length+'</span><small>фраз сказано</small></div></div><div class="okb"><b>Твій статус: '+lvl+'</b><br>'+(okAll?'Ти пройшла весь урок. Це круто!':'Ти вже зробила багато. Можна повернутися до етапів, які залишилися.')+'</div>'+
+   '<h3>Фрази, які ти сказала вголос</h3><div class="chips">'+(ph.length?ph.map(function(p){ return '<span class="chip plain">'+esc(p)+'</span>'; }).join(''):'<span class="muted">Поки що немає: відміть їх у Stage 3.</span>')+'</div>'+
+   '<h3>Твій текст'+(f?' ('+esc(f.t)+')':'')+'</h3><div class="post"><div class="cap" style="white-space:pre-wrap">'+(text?esc(text):'<span class="muted">Ще немає тексту. Повернись до Stage 4.</span>')+'</div></div>'+
+   '<h3>Підсумок для копіювання</h3><div class="sum">'+esc(summary())+'</div><div class="row" style="margin-top:12px"><button class="btn main" id="cpy">📋 Copy Lesson Summary & Writing</button><button class="btn" id="rst">Почати спочатку</button></div></div>';
+  $('#view').innerHTML=h; drawStages();
+  $('#cpy').onclick=function(){ copyText(summary(),'Підсумок і текст скопійовано ✓'); };
+  var arm=false; $('#rst').onclick=function(){ if(!arm){ arm=true; this.textContent='Натисни ще раз для підтвердження'; } else { try{ window.localStorage.removeItem(KEY); }catch(e){} location.reload(); } };
+}
+
+drawClock(); render();
+</script>
+</body>
+</html>
